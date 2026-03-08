@@ -7,7 +7,7 @@ packages = ["src/openconnect_sso"]
 
 [project]
 name = "openconnect-sso-mtls"
-version = "0.0.0"
+version = "1.0.0"
 description = "Wrapper script for OpenConnect supporting Azure AD (SAMLv2) authentication to Cisco SSL-VPNs"
 license = { text = "GPL-3.0-only" }
 authors = [

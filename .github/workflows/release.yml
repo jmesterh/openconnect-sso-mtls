@@ -32,15 +32,17 @@ jobs:
         run: uv sync --dev
 
       - name: Create release
+        id: release
         run: uv run semantic-release version
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish release artifacts
+        if: steps.release.outputs.released == 'true'
         run: uv run semantic-release publish
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish to PyPI
+        if: steps.release.outputs.released == 'true'
         uses: pypa/gh-action-pypi-publish@release/v1
-        if: success()

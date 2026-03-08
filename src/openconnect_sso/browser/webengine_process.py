@@ -15,9 +15,9 @@ import os
 import queue
 import signal
 import sys
+from collections.abc import Callable
 from typing import TYPE_CHECKING
 from typing import Any
-from typing import Callable
 from urllib.parse import urlparse
 
 import attr

@@ -51,6 +51,3 @@ async def test_browser_cookies_accessible(httpserver):
         await browser.authenticate_at(auth_url, cred)
         await browser.page_loaded()
         assert browser.cookies.get("cookie-name") == "cookie-value"
-
-
-

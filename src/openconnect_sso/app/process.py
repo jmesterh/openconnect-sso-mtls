@@ -52,7 +52,7 @@ def _create_vpnc_wrapper(vpnc_script: str, full_tunnel: bool = False) -> str:
     except Exception:
         os.unlink(path)
         raise
-    os.chmod(path, stat.S_IRWXU | stat.S_IRGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH)
+    os.chmod(path, stat.S_IRWXU | stat.S_IRGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH)  # noqa: S103
     return path
 
 
@@ -128,7 +128,7 @@ def run_openconnect(
     session_token = auth_info.session_token.encode("utf-8")
     logger.debug("Starting OpenConnect", command_line=command_line)
     try:
-        return subprocess.run(command_line, input=session_token).returncode
+        return subprocess.run(command_line, input=session_token).returncode  # noqa: S603
     finally:
         if wrapper_script:
             try:
@@ -148,5 +148,5 @@ def handle_disconnect(command: str) -> int | None:
     """
     if command:
         logger.info("Running command on disconnect", command_line=command)
-        return subprocess.run(command, timeout=5, shell=True).returncode
+        return subprocess.run(command, timeout=5, shell=True).returncode  # noqa: S602,S603
     return None

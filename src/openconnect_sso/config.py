@@ -113,17 +113,17 @@ class AutoFillRule(ConfigNode):
     action: str | None = attr.ib(default=None)
 
 
-def get_default_auto_fill_rules() -> dict[str, list[dict[str, Any]]]:
+def get_default_auto_fill_rules() -> dict[str, list[AutoFillRule | None]]:
     """Return the default auto-fill rules for Azure AD SSO."""
     return {
         "https://*": [
-            AutoFillRule(selector="div[id=passwordError]", action="stop").as_dict(),
-            AutoFillRule(selector="input[type=email]", fill="username").as_dict(),
-            AutoFillRule(selector="input[name=passwd]", fill="password").as_dict(),
-            AutoFillRule(selector="input[data-report-event=Signin_Submit]", action="click").as_dict(),
-            AutoFillRule(selector="div[data-value=PhoneAppOTP]", action="click").as_dict(),
-            AutoFillRule(selector="a[id=signInAnotherWay]", action="click").as_dict(),
-            AutoFillRule(selector="input[id=idTxtBx_SAOTCC_OTC]", fill="totp").as_dict(),
+            AutoFillRule(selector="div[id=passwordError]", action="stop"),
+            AutoFillRule(selector="input[type=email]", fill="username"),
+            AutoFillRule(selector="input[name=passwd]", fill="password"),
+            AutoFillRule(selector="input[data-report-event=Signin_Submit]", action="click"),
+            AutoFillRule(selector="div[data-value=PhoneAppOTP]", action="click"),
+            AutoFillRule(selector="a[id=signInAnotherWay]", action="click"),
+            AutoFillRule(selector="input[id=idTxtBx_SAOTCC_OTC]", fill="totp"),
         ]
     }
 
@@ -178,8 +178,13 @@ def _convert_credentials(d: dict[str, Any] | None) -> Credentials | None:
     return Credentials.from_dict(d)
 
 
-def _convert_auto_fill_rules(rules: dict[str, list[dict[str, Any]]]) -> dict[str, list[AutoFillRule | None]]:
-    return {n: [AutoFillRule.from_dict(r) for r in rule] for n, rule in rules.items()}
+def _convert_auto_fill_rules(
+    rules: dict[str, list[dict[str, Any] | AutoFillRule | None]],
+) -> dict[str, list[AutoFillRule | None]]:
+    return {
+        n: [AutoFillRule.from_dict(r) if isinstance(r, dict) else r for r in rule]
+        for n, rule in rules.items()
+    }
 
 
 @attr.s

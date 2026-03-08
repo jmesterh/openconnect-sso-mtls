@@ -14,10 +14,10 @@ import os
 import shlex
 import signal
 from argparse import Namespace
+from collections.abc import Coroutine
 from pathlib import Path
 from typing import TYPE_CHECKING
 from typing import Any
-from typing import Coroutine
 from typing import cast
 
 import structlog

@@ -1,130 +1,85 @@
-# openconnect-sso
+# openconnect-sso-mtls
 
-Wrapper script for OpenConnect supporting Azure AD (SAMLv2) authentication
-to Cisco SSL-VPNs
+[![Tests](https://github.com/jmesterh/openconnect-sso-mtls/workflows/Tests/badge.svg?branch=main&event=push)](https://github.com/jmesterh/openconnect-sso-mtls/actions?query=workflow%3ATests+branch%3Amain+event%3Apush)
 
-[![Tests Status
-](https://github.com/vlaci/openconnect-sso/workflows/Tests/badge.svg?branch=master&event=push)](https://github.com/vlaci/openconnect-sso/actions?query=workflow%3ATests+branch%3Amaster+event%3Apush)
+A wrapper for [OpenConnect](https://www.infradead.org/openconnect/) that handles SAMLv2/SSO authentication to Cisco SSL-VPNs. Automates the browser-based login flow and passes the resulting session token to `openconnect`. Includes automatic client certificate (mTLS) selection from the system keystore.
+
+Fork of [vlaci/openconnect-sso](https://github.com/vlaci/openconnect-sso).
+
+## Requirements
+
+- Linux or macOS
+- `openconnect` installed and on `$PATH`
+- Python 3.12+
 
 ## Installation
 
-### Using pip/pipx
-
-A generic way that works on most 'standard' Linux distributions out of the box.
-The following example shows how to install `openconect-sso` along with its
-dependencies including Qt:
-
 ```shell
-$ pip install --user pipx
-Successfully installed pipx
-$ pipx install "openconnect-sso[full]"
-⣾ installing openconnect-sso
-  installed package openconnect-sso 0.4.0, Python 3.7.5
-  These apps are now globally available
-    - openconnect-sso
-⚠️  Note: '/home/vlaci/.local/bin' is not on your PATH environment variable.
-These apps will not be globally accessible until your PATH is updated. Run
-`pipx ensurepath` to automatically add it, or manually modify your PATH in your
-shell's config file (i.e. ~/.bashrc).
-done! ✨ 🌟 ✨
-Successfully installed openconnect-sso
-$ pipx ensurepath
-Success! Added /home/vlaci/.local/bin to the PATH environment variable.
-Consider adding shell completions for pipx. Run 'pipx completions' for
-instructions.
-
-You likely need to open a new terminal or re-login for the changes to take
-effect. ✨ 🌟 ✨
+pipx install git+https://github.com/jmesterh/openconnect-sso-mtls
 ```
-
-Of course you can also install via `pip` instead of `pipx` if you'd like to
-install system-wide or a virtualenv of your choice.
-
-### On Arch Linux
-
-There is an unofficial package available for Arch Linux on
-[AUR](https://aur.archlinux.org/packages/openconnect-sso/). You can use your
-favorite AUR helper to install it:
-
-``` shell
-yay -S openconnect-sso
-```
-
-### Using nix
-
-The easiest method to try is by installing directly:
-
-```shell
-$ nix-env -i -f https://github.com/vlaci/openconnect-sso/archive/master.tar.gz
-unpacking 'https://github.com/vlaci/openconnect-sso/archive/master.tar.gz'...
-[...]
-installing 'openconnect-sso-0.4.0'
-these derivations will be built:
-  /nix/store/2z47740z1rr2cfqfin5lnq04sq3c5xjg-openconnect-sso-0.4.0.drv
-[...]
-building '/nix/store/50q496iqf840wi8b95cfmgn07k6y5b59-user-environment.drv'...
-created 606 symlinks in user environment
-$ openconnect-sso
-```
-
-An overlay is also available to use in nix expressions:
-
-``` nix
-let
-  openconnectOverlay = import "${builtins.fetchTarball https://github.com/vlaci/openconnect-sso/archive/master.tar.gz}/overlay.nix";
-  pkgs = import <nixpkgs> { overlays = [ openconnectOverlay ]; };
-in
-  #  pkgs.openconnect-sso is available in this context
-```
-
-... or to use in `configuration.nix`:
-
-``` nix
-{ config, ... }:
-
-{
-  nixpkgs.overlays = [
-    (import "${builtins.fetchTarball https://github.com/vlaci/openconnect-sso/archive/master.tar.gz}/overlay.nix")
-  ];
-}
-```
-
-### Windows *(EXPERIMENTAL)*
-
-Install with [pip/pipx](#using-pippipx) and be sure that you have `sudo` and `openconnect`
-executable commands in your PATH.
 
 ## Usage
 
-If you want to save credentials and get them automatically
-injected in the web browser:
+If Cisco AnyConnect or Secure Client is installed, existing VPN profiles are detected automatically. In most cases, just run:
 
 ```shell
-$ openconnect-sso --server vpn.server.com/group --user user@domain.com
-Password (user@domain.com):
-[info     ] Authenticating to VPN endpoint ...
+openconnect-sso
 ```
 
-User credentials are automatically saved to the users login keyring (if
-available).
+The server address and credentials are saved between sessions, so subsequent runs require no arguments.
 
-If you already have Cisco AnyConnect set-up, then `--server` argument is
-optional. Also, the last used `--server` address is saved between sessions so
-there is no need to always type in the same arguments:
+To connect to a specific server for the first time:
 
 ```shell
-$ openconnect-sso
-[info     ] Authenticating to VPN endpoint ...
+openconnect-sso --server vpn.server.com/group --user user@domain.com
 ```
 
-Configuration is saved in `$XDG_CONFIG_HOME/openconnect-sso/config.toml`. On
-typical Linux installations it is located under
-`$HOME/.config/openconnect-sso/config.toml`
+### Passing arguments to openconnect
 
-For CISCO-VPN and TOTP the following seems to work by tuning the config.toml
-and removing the default "submit"-action to the following:
+Additional `openconnect` arguments can be appended after `--`:
 
+```shell
+openconnect-sso -- --base-mtu=1370
 ```
+
+### Client certificates (mTLS)
+
+When the VPN server requests a client certificate during the SSO flow, the tool selects the first matching certificate from the system keystore automatically. No configuration is required.
+
+### Authentication groups
+
+Use `--list-authgroups` to discover what groups your VPN server exposes:
+
+```shell
+$ openconnect-sso --list-authgroups
+CardinalKey
+CardinalKey-Full
+```
+
+Then connect directly to a group:
+
+```shell
+openconnect-sso --authgroup "CardinalKey-Full"
+```
+
+### Authenticate only (no tunnel)
+
+Output session credentials without starting the tunnel — useful for scripting:
+
+```shell
+openconnect-sso --authenticate shell
+openconnect-sso --authenticate json
+```
+
+## Configuration
+
+Configuration is stored at `$XDG_CONFIG_HOME/openconnect-sso/config.toml` (typically `~/.config/openconnect-sso/config.toml`).
+
+### TOTP / push-based MFA
+
+For environments where the SSO page requires a TOTP code, adjust `config.toml` to fill and submit it:
+
+```toml
 [[auto_fill_rules."https://*"]]
 selector = "input[data-report-event=Signin_Submit]"
 action = "click"
@@ -134,62 +89,37 @@ selector = "input[type=tel]"
 fill = "totp"
 ```
 
-### Adding custom `openconnect` arguments
+## CLI reference
 
-Sometimes you need to add custom `openconnect` arguments. One situation can be if you get similar error messages:
-
-```shell
-Failed to read from SSL socket: The transmitted packet is too large (EMSGSIZE).
-Failed to recv DPD request (-5)
 ```
+openconnect-sso [OPTIONS] [-- OPENCONNECT_ARGS]
 
-or:
+Server connection:
+  -s, --server SERVER              VPN server address (host, host/group, or full URL)
+  -p, --profile PROFILE_PATH       Load profiles from file or directory
+  -P, --profile-selector           Always display profile selector
+      --proxy PROXY                Use a proxy server
 
-```shell
-Detected MTU of 1370 bytes (was 1406)
-```
+Authentication:
+      --authgroup AUTHGROUP        Set authentication group, skipping the interactive selector
+      --list-authgroups            Query available authentication groups and exit
+  -g, --usergroup USERGROUP        Override usergroup from --server
+      --authenticate [FORMAT]      Authenticate only; output credentials as shell or json
 
-Generally, you can add `openconnect` arguments after the `--` separator. This is called _"positional arguments"_. The
-solution of the previous errors is setting `--base-mtu` e.g.:
+Credentials:
+  -u, --user USER                  Authenticate as the given user
 
-```shell
-openconnect-sso --server vpn.server.com/group --user user@domain.com -- --base-mtu=1370
-#                                                          separator ^^|^^^^^^^^^^^^^^^ openconnect args
+Options:
+      --browser-display-mode       shown (default) or hidden
+      --full-tunnel                Strip split-tunnel routes, force full tunnel
+      --on-disconnect CMD          Command to run on disconnect
+      --ac-version VERSION         AnyConnect version string (default: 4.7.00136)
+  -l, --log-level LEVEL            ERROR, WARNING, INFO, or DEBUG
+  -V, --version                    Print version and exit
 ```
 
 ## Development
 
-`openconnect-sso` is developed using [Nix](https://nixos.org/nix/). Refer to the
-[Quick Start section of the Nix
-manual](https://nixos.org/nix/manual/#chap-quick-start) to see how to get it
-installed on your machine.
-
-To get dropped into a development environment, just type `nix-shell`:
-
 ```shell
-$ nix-shell
-Sourcing python-catch-conflicts-hook.sh
-Sourcing python-remove-bin-bytecode-hook.sh
-Sourcing pip-build-hook
-Using pipBuildPhase
-Sourcing pip-install-hook
-Using pipInstallPhase
-Sourcing python-imports-check-hook.sh
-Using pythonImportsCheckPhase
-Run 'make help' for available commands
-
-[nix-shell]$
+uv run pytest
 ```
-
-To try an installed version of the package, issue `nix-build`:
-
-```shell
-$ nix build
-[1 built, 0.0 MiB DL]
-
-$ result/bin/openconnect-sso --help
-```
-
-Alternatively you may just [get Poetry](https://python-poetry.org/docs/) and
-start developing by using the included `Makefile`. Type `make help` to see the
-possible make targets.

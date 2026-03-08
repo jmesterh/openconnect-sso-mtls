@@ -1,12 +1,17 @@
-import attr
-import pytest
+"""Tests for the browser module."""
+
 import sys
 
-from openconnect_sso.browser import Browser, DisplayMode
+import pytest
+
+from openconnect_sso.browser import Browser
+from openconnect_sso.browser import DisplayMode
+from openconnect_sso.config import Credentials
 
 
 @pytest.mark.asyncio
 async def test_browser_context_manager_should_work_in_empty_context_manager():
+    """Test that browser context manager works with empty body."""
     async with Browser() as _:
         pass
 
@@ -17,6 +22,7 @@ async def test_browser_context_manager_should_work_in_empty_context_manager():
 )
 @pytest.mark.asyncio
 async def test_browser_reports_loaded_url(httpserver):
+    """Test that browser reports the loaded URL correctly."""
     async with Browser(display_mode=DisplayMode.HIDDEN) as browser:
         auth_url = httpserver.url_for("/authenticate")
 
@@ -33,20 +39,18 @@ async def test_browser_reports_loaded_url(httpserver):
 )
 @pytest.mark.asyncio
 async def test_browser_cookies_accessible(httpserver):
+    """Test that cookies set by the page are accessible."""
     async with Browser(display_mode=DisplayMode.HIDDEN) as browser:
         httpserver.expect_request("/authenticate").respond_with_data(
             "<html><body>Hello</body></html>",
             headers={"Set-Cookie": "cookie-name=cookie-value"},
         )
         auth_url = httpserver.url_for("/authenticate")
-        cred = Credentials("username", "password")
+        cred = Credentials("username")
 
         await browser.authenticate_at(auth_url, cred)
         await browser.page_loaded()
         assert browser.cookies.get("cookie-name") == "cookie-value"
 
 
-@attr.s
-class Credentials:
-    username = attr.ib()
-    password = attr.ib()
+

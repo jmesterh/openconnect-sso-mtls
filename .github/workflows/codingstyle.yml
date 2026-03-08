@@ -3,8 +3,7 @@ name: Coding Style
 on:
   push:
     branches:
-      - master
-      - develop
+      - main
   pull_request:
     branches:
       - '**'
@@ -14,6 +13,6 @@ jobs:
     name: Coding Style
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
       - uses: pre-commit/action@v3.0.0

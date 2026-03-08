@@ -1,3 +1,5 @@
+"""Tests for HostProfile URL construction."""
+
 import pytest
 
 from openconnect_sso.config import HostProfile
@@ -16,4 +18,5 @@ from openconnect_sso.config import HostProfile
     ),
 )
 def test_vpn_url(server, group, expected_url):
+    """Test VPN URL construction from server and group."""
     assert HostProfile(server, group, "name").vpn_url == expected_url

@@ -1,6 +1,7 @@
 # openconnect-sso-mtls
 
 [![Tests](https://github.com/jmesterh/openconnect-sso-mtls/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/jmesterh/openconnect-sso-mtls/actions/workflows/test.yml)
+[![PyPI](https://img.shields.io/pypi/v/openconnect-sso-mtls)](https://pypi.org/project/openconnect-sso-mtls/)
 
 A wrapper for [OpenConnect](https://www.infradead.org/openconnect/) that handles SAMLv2/SSO authentication to Cisco SSL-VPNs. Automates the browser-based login flow and passes the resulting session token to `openconnect`. Includes automatic client certificate (mTLS) selection from the system keystore.
 
@@ -14,8 +15,17 @@ Fork of [vlaci/openconnect-sso](https://github.com/vlaci/openconnect-sso).
 
 ## Installation
 
+On macOS with Homebrew, install `pipx` first if needed:
+
 ```shell
-pipx install git+https://github.com/jmesterh/openconnect-sso-mtls
+brew install pipx
+pipx ensurepath
+```
+
+Then install the package:
+
+```shell
+pipx install openconnect-sso-mtls
 ```
 
 ## Usage

@@ -40,3 +40,7 @@ jobs:
         run: uv run semantic-release publish
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        if: success()

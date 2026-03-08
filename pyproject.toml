@@ -1,20 +1,13 @@
 [build-system]
-requires = ["hatchling", "hatch-vcs"]
+requires = ["hatchling"]
 build-backend = "hatchling.build"
-
-[tool.hatch.version]
-source = "vcs"
-fallback-version = "1.0.0"
-
-[tool.hatch.build.hooks.vcs]
-version-file = "src/openconnect_sso/_version.py"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/openconnect_sso"]
 
 [project]
 name = "openconnect-sso-mtls"
-dynamic = ["version"]
+version = "0.0.0"
 description = "Wrapper script for OpenConnect supporting Azure AD (SAMLv2) authentication to Cisco SSL-VPNs"
 license = { text = "GPL-3.0-only" }
 authors = [
@@ -70,7 +63,12 @@ commit_message = "chore(release): {version} [skip ci]"
 major_on_zero = true
 tag_format = "v{version}"
 version_source = "tag"
-build_command = "uv build"
+version_toml = ["pyproject.toml:project.version"]
+build_command = """
+    uv lock --upgrade-package "$PACKAGE_NAME"
+    git add uv.lock
+    uv build
+"""
 
 [tool.semantic_release.changelog]
 mode = "update"

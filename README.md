@@ -15,10 +15,17 @@ Fork of [vlaci/openconnect-sso](https://github.com/vlaci/openconnect-sso).
 
 ## Installation
 
-On macOS with Homebrew, install `pipx` first if needed:
+On macOS with Homebrew, install `openconnect` and `pipx` first if needed:
 
 ```shell
-brew install pipx
+brew install openconnect pipx
+pipx ensurepath
+```
+
+On Linux (Debian/Ubuntu), install `openconnect` and `pipx` first if needed:
+
+```shell
+sudo apt install openconnect pipx
 pipx ensurepath
 ```
 

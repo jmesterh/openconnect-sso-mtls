@@ -182,12 +182,6 @@ def _convert_auto_fill_rules(rules: dict[str, list[dict[str, Any]]]) -> dict[str
     return {n: [AutoFillRule.from_dict(r) for r in rule] for n, rule in rules.items()}
 
 
-def _get_default_auto_fill_rules() -> dict[str, list[AutoFillRule | None]]:
-    """Return the default auto-fill rules for Azure AD SSO."""
-    raw_rules = get_default_auto_fill_rules()
-    return _convert_auto_fill_rules(raw_rules)
-
-
 @attr.s
 class Config(ConfigNode):
     """Main configuration container for OpenConnect SSO."""
@@ -195,7 +189,7 @@ class Config(ConfigNode):
     default_profile: HostProfile | None = attr.ib(default=None, converter=_convert_host_profile)
     credentials: Credentials | None = attr.ib(default=None, converter=_convert_credentials)
     auto_fill_rules: dict[str, list[AutoFillRule | None]] = attr.ib(
-        factory=_get_default_auto_fill_rules,
+        factory=get_default_auto_fill_rules,
         converter=_convert_auto_fill_rules,
     )
     on_disconnect: str = attr.ib(converter=str, default="")

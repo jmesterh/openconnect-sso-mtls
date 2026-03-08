@@ -181,10 +181,7 @@ def _convert_credentials(d: dict[str, Any] | None) -> Credentials | None:
 def _convert_auto_fill_rules(
     rules: dict[str, list[dict[str, Any] | AutoFillRule | None]],
 ) -> dict[str, list[AutoFillRule | None]]:
-    return {
-        n: [AutoFillRule.from_dict(r) if isinstance(r, dict) else r for r in rule]
-        for n, rule in rules.items()
-    }
+    return {n: [AutoFillRule.from_dict(r) if isinstance(r, dict) else r for r in rule] for n, rule in rules.items()}
 
 
 @attr.s

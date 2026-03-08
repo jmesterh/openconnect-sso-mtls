@@ -1,6 +1,6 @@
 # openconnect-sso-mtls
 
-[![Tests](https://github.com/jmesterh/openconnect-sso-mtls/workflows/Tests/badge.svg?branch=main&event=push)](https://github.com/jmesterh/openconnect-sso-mtls/actions?query=workflow%3ATests+branch%3Amain+event%3Apush)
+[![Tests](https://github.com/jmesterh/openconnect-sso-mtls/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/jmesterh/openconnect-sso-mtls/actions/workflows/test.yml)
 
 A wrapper for [OpenConnect](https://www.infradead.org/openconnect/) that handles SAMLv2/SSO authentication to Cisco SSL-VPNs. Automates the browser-based login flow and passes the resulting session token to `openconnect`. Includes automatic client certificate (mTLS) selection from the system keystore.
 

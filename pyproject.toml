@@ -70,6 +70,7 @@ commit_message = "chore(release): {version} [skip ci]"
 major_on_zero = false
 tag_format = "v{version}"
 version_source = "tag"
+build_command = "uv build"
 
 [tool.semantic_release.changelog]
 mode = "update"

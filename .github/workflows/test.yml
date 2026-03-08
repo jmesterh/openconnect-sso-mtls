@@ -36,3 +36,5 @@ jobs:
 
       - name: Run pytest
         run: uv run pytest
+        env:
+          QTWEBENGINE_CHROMIUM_FLAGS: "--no-sandbox"
